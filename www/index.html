@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,7 +20,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
 
         body {
@@ -27,7 +28,6 @@
             color: var(--text-color);
         }
 
-        /* Header / Navbar */
         header {
             background-color: var(--primary-color);
             color: var(--white);
@@ -66,7 +66,6 @@
             border-radius: 50%;
         }
 
-        /* Hero Banner */
         .hero {
             background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1200&q=80') center/cover;
             color: white;
@@ -76,7 +75,6 @@
 
         .hero h1 { font-size: 40px; margin-bottom: 10px; }
 
-        /* Products Grid */
         .products-container {
             padding: 40px 5%;
         }
@@ -128,7 +126,6 @@
 
         .add-btn:hover { background: #1d4ed8; }
 
-        /* Cart Sidebar */
         .cart-sidebar {
             position: fixed;
             top: 0;
@@ -172,4 +169,140 @@
         }
 
         .cart-footer {
-            padding: 20px
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .total-price { font-size: 20px; font-weight: bold; margin-bottom: 15px; }
+        .checkout-btn {
+            width: 100%;
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Tech<span>Zone</span></div>
+        <div class="cart-icon" onclick="toggleCart()">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cart-count">0</span>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Upgrade Your Tech, Upgrade Your Life</h1>
+        <p>Latest smartphones, smartwatches, and premium accessories.</p>
+    </section>
+
+    <main class="products-container">
+        <h2>Our Hot Deals</h2>
+        <div class="product-grid" id="product-list"></div>
+    </main>
+
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Your Cart</h3>
+            <i class="fas fa-times close-btn" onclick="toggleCart()"></i>
+        </div>
+        <div class="cart-items" id="cart-items-container"></div>
+        <div class="cart-footer">
+            <div class="total-price">Total: $<span id="cart-total">0.00</span></div>
+            <button class="checkout-btn" onclick="checkout()">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <script>
+        const gadgets = [
+            { id: 1, name: "ProPhone 15 Ultra", price: 999.00, image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=300&q=80" },
+            { id: 2, name: "Quantum Smartwatch v4", price: 249.00, image: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=300&q=80" },
+            { id: 3, name: "AcousticX ANC Headphones", price: 199.00, image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=80" },
+            { id: 4, name: "TabPad Air 11-inch", price: 599.00, image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=300&q=80" },
+            { id: 5, name: "ProPhone 15 Ultra", price: 999.00, image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=80" },
+            { id: 6, name: "Quantum Smartwatch v4", price: 249.00, image: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=400&q=80" },
+            { id: 7, name: "AcousticX ANC Headphones", price: 199.00, image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80" },
+            { id: 8, name: "TabPad Air 11-inch", price: 599.00, image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=400&q=80" },
+            { id: 9, name: "FlexFold Smart Flip Phone", price: 1099.00, image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=80" },
+            { id: 10, name: "Studio Wireless Desktop Mic", price: 129.00, image: "https://images.unsplash.com/photo-1590608897129-79da98d15969?auto=format&fit=crop&w=400&q=80" },
+            { id: 11, name: "3-in-1 Fast Wireless Charger", price: 49.00, image: "https://images.unsplash.com/photo-1622445262465-2481c4574875?auto=format&fit=crop&w=400&q=80"}
+        ];
+
+        let cart = [];
+
+        function displayProducts() {
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = gadgets.map(product => `
+                <div class="product-card">
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <div class="price">$${product.price.toFixed(2)}</div>
+                    <button class="add-btn" onclick="addToCart(${product.id})">Add to Cart</button>
+                </div>
+            `).join('');
+        }
+
+        function toggleCart() {
+            document.getElementById('cartSidebar').classList.toggle('active');
+        }
+
+        function addToCart(productId) {
+            const item = gadgets.find(p => p.id === productId);
+            const existingItem = cart.find(c => c.id === productId);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ ...item, quantity: 1 });
+            }
+            updateCartUI();
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const cartCount = document.getElementById('cart-count');
+            const cartItemsContainer = document.getElementById('cart-items-container');
+            const cartTotal = document.getElementById('cart-total');
+
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.innerText = totalCount;
+
+            cartItemsContainer.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div>
+                        <h4>${item.name}</h4>
+                        <small>$${item.price.toFixed(2)} x ${item.quantity}</small>
+                    </div>
+                    <i class="fas fa-trash-alt" style="color:#ef4444; cursor:pointer;" onclick="removeFromCart(${item.id})"></i>
+                </div>
+            `).join('');
+
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            cartTotal.innerText = totalPrice.toFixed(2);
+        }
+
+        function checkout() {
+            if(cart.length === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+            alert("🚀 Order Placed Successfully! Thank you for shopping with TechZone.");
+            cart = [];
+            updateCartUI();
+            toggleCart();
+        }
+
+        // Initialize display immediately when script loads
+        displayProducts();
+    </script>
+</body>
+</html>
